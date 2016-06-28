@@ -80,6 +80,11 @@ module Docx
           size_tag ? size_tag.attributes['val'].value.to_i / 2 : @font_size
         end
         
+        def style
+          style_tag = @node.xpath('w:pPr//w:pStyle').first
+          style_tag ? style_tag.attributes['val'].value.to_s : 'Normal'
+        end
+        
         alias_method :text, :to_s
 
         private
