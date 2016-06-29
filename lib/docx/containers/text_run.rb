@@ -10,7 +10,9 @@ module Docx
         DEFAULT_FORMATTING = {
           italic:    false,
           bold:      false,
-          underline: false
+          underline: false,
+          superscript: false,
+          subscript: false
         }
         
         def self.tag
@@ -49,7 +51,9 @@ module Docx
           {
             italic:    !@node.xpath('.//w:i').empty?,
             bold:      !@node.xpath('.//w:b').empty?,
-            underline: !@node.xpath('.//w:u').empty?
+            underline: !@node.xpath('.//w:u').empty?,
+            superscript: (vert_align(@node) == 'superscript'),
+            subscript: (vert_align(@node) == 'subscript')
           }
         end
 
@@ -62,6 +66,8 @@ module Docx
           html = @text
           html = html_tag(:em, content: html) if italicized?
           html = html_tag(:strong, content: html) if bolded?
+          html = html_tag(:superscript, content: html) if superscript?
+          html = html_tag(:subscript, content: html) if subscript?
           styles = {}
           styles['text-decoration'] = 'underline' if underlined?
           # No need to be granular with font size down to the span level if it doesn't vary.
@@ -81,11 +87,26 @@ module Docx
         def underlined?
           @formatting[:underline]
         end
+        
+        def superscript?
+          @formatting[:superscript]
+        end
+
+        def subscript?
+          @formatting[:subscript]
+        end
 
         def font_size
           size_tag = @node.xpath('w:rPr//w:sz').first
           size_tag ? size_tag.attributes['val'].value.to_i / 2 : @font_size
         end
+        
+        private
+        def vert_align(node)
+          va = node.xpath('.//w:vertAlign').first
+          va ? va.attributes['val'].value : ''
+        end
+        
       end
     end
   end
