@@ -36,7 +36,7 @@ require 'docx'
 # Retrieve and display paragraphs as html
 doc = Docx::Document.open('example.docx')
 doc.paragraphs.each do |p|
-  puts p.to_html
+  puts p.to_html # preserves any bold, italic, underline, hyperlinks, superscript, and subscript character formatting from the original docx file.
 end
 ```
 
