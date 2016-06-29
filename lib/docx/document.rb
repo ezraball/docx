@@ -18,7 +18,7 @@ module Docx
   #     puts d.text
   #   end
   class Document
-    attr_reader :xml, :doc, :zip, :styles
+    attr_reader :xml, :doc, :zip, :styles, :hyperlinks, :hyperlinks_xml
     
     def initialize(path, &block)
       @replace = {}
@@ -27,17 +27,19 @@ module Docx
       @doc = Nokogiri::XML(@document_xml)
       @styles_xml = @zip.read('word/styles.xml')
       @styles = Nokogiri::XML(@styles_xml)
+      @hyperlinks_xml = @zip.read('word/_rels/document.xml.rels')
+      @hyperlinks = parse_hyperlinks(@hyperlinks_xml)
       if block_given?
         yield self
         @zip.close
       end
     end
-
-
+    
     # This stores the current global document properties, for now
     def document_properties
       {
-        font_size: font_size
+        font_size: font_size,
+        hyperlinks: @hyperlinks
       }
     end
 
@@ -144,5 +146,15 @@ module Docx
     def parse_table_from(t_node)
       Elements::Containers::Table.new(t_node)
     end
+    
+    def parse_hyperlinks(word_refs_xml)
+      refs = Hash.new
+      refsdoc = Nokogiri::XML(word_refs_xml)
+      refsdoc.root.children.each do |rel|
+        refs[rel.attributes["Id"].to_s] = rel.attributes["Target"].to_s
+      end
+      refs
+    end
+    
   end
 end
