@@ -47,7 +47,11 @@ module Docx
           text_runs_with_hyperlinks.each do |text_run|
             html << text_run.to_html
           end
-          styles = { 'font-size' => "#{font_size}pt" }
+          if font_size
+            styles = { 'font-size' => "#{font_size}pt" }
+          else
+            styles = {}
+          end
           styles['text-align'] = alignment if alignment
           html_tag(:p, content: html, styles: styles)
         end
