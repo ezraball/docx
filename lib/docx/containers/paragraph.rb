@@ -53,7 +53,8 @@ module Docx
             styles = {}
           end
           styles['text-align'] = alignment if alignment
-          html_tag(:p, content: html, styles: styles)
+          #html_tag(:p, content: html, styles: styles)
+          html
         end
 
         # Array of text runs contained within paragraph
